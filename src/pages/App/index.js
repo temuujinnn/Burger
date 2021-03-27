@@ -1,17 +1,15 @@
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, useContext } from "react";
 import { Redirect } from "react-router-dom";
 import css from "./style.module.css";
-import { connect } from "react-redux";
 import Toolbar from "../../components/Toolbar";
 import SideBar from "../../components/SideBar";
 import { Route, Switch } from "react-router-dom";
 import ShippingPage from "../ShippingPage";
 import LoginPage from "../LoginPage";
 import Logout from "../../components/logout";
-import * as actions from "../../redux/action/loginActions";
-import * as signupActions from "../../redux/action/signupActions";
 import { BurgerStore } from "../../context/BurgerContext";
-import { OrderStore, orderStore } from "../../context/OrderContext";
+import { OrderStore } from "../../context/OrderContext";
+import UserContext from "../../context/UserContext";
 
 const BurgerPage = React.lazy(() => {
   return import("../BurgerPage");
@@ -24,6 +22,7 @@ const Signup = React.lazy(() => {
 });
 
 const App = (props) => {
+  const userCtx = useContext(UserContext);
   const [showSideBar, setShowSideBar] = useState(false);
 
   const toggleSideBar = () => {
@@ -36,12 +35,12 @@ const App = (props) => {
     const refreshToken = localStorage.getItem("refreshToken");
     if (token) {
       if (expireDate > new Date()) {
-        props.autologin(token, userId);
+        userCtx.loginUserSuccess(token, userId, expireDate, refreshToken);
       } else {
         //token hugatsaa duussan logout hine
-        props.logout();
+        userCtx.logout();
         //token huchingui bolohod uldej baiga hugatsaag tootsoloh
-        props.autologoutAfter(expireDate.getTime() - new Date().getTime());
+        userCtx.autologoutAfter(expireDate.getTime() - new Date().getTime());
       }
     }
   }, []);
@@ -53,7 +52,7 @@ const App = (props) => {
         <SideBar showSideBar={showSideBar} toggleSideBar={toggleSideBar} />
         <main className={css.content}>
           <Suspense fallback={<div>tur hulee</div>}>
-            {props.userId ? (
+            {userCtx.state.userId ? (
               <Switch>
                 <Route path="/logout" component={Logout} />
 
@@ -80,17 +79,12 @@ const App = (props) => {
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    userId: state.signupReducer.userId,
-  };
-};
-const mapDispatchToProps = (dispatch) => {
-  return {
-    autologin: (token, userId) =>
-      dispatch(actions.loginUserSuccess(token, userId)),
-    logout: dispatch(signupActions.logout()),
-    autologoutAfter: dispatch(signupActions.autologoutAfter()),
-  };
-};
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+// const mapDispatchToProps = (dispatch) => {
+//   return {
+//     autologin: (token, userId) =>
+//       dispatch(actions.loginUserSuccess(token, userId)),
+//     logout: dispatch(signupActions.logout()),
+//     autologoutAfter: dispatch(signupActions.autologoutAfter()),
+//   };
+// };
+export default App;

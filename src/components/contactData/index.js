@@ -2,10 +2,13 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import css from "./style.module.css";
 import Button from "../../General/Button";
 import Spinner from "../../General/spinner";
-import { withRouter } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import BurgerContext from "../../context/BurgerContext";
+import UserContext from "../../context/UserContext";
 
 const ContactData = (props) => {
+  const userctx = useContext(UserContext);
+  const history = useHistory();
   const ctx = useContext(BurgerContext);
   const [name, setName] = useState();
   const [city, setCity] = useState();
@@ -14,7 +17,7 @@ const ContactData = (props) => {
   useEffect(() => {
     console.log("contact data effect");
     if (ctx.burger.finished && !ctx.burger.error) {
-      props.history.replace("/orders");
+      history.replace("/orders");
     }
     return () => {
       //tsewerlegch function zahialgiig butsaaj hoosolno. daraachiin zahialgad beldene
@@ -41,7 +44,7 @@ const ContactData = (props) => {
 
   const saveOrder = () => {
     const newOrder = {
-      userId: "props.userId",
+      userId: userctx.state.userId,
       orts: ctx.burger.ingredients,
       dun: ctx.burger.totalPrice,
       hayag: {
@@ -51,7 +54,7 @@ const ContactData = (props) => {
       },
     };
 
-    ctx.saveBurger(newOrder);
+    ctx.saveBurger(newOrder, userctx.state.token);
   };
 
   return (
@@ -95,4 +98,4 @@ const ContactData = (props) => {
   );
 };
 
-export default withRouter(ContactData);
+export default ContactData;

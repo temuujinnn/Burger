@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import css from "./style.module.css";
 import Button from "../../General/Button";
-import * as actions from "../../redux/action/signupActions";
-import { connect } from "react-redux";
 import Spinner from "../../General/spinner";
 import { Redirect } from "react-router-dom";
+import UserContext from "../../context/UserContext";
 const Signup = (props) => {
+  const ctx = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [password1, setPassword1] = useState("");
   const [password2, setPassword2] = useState("");
@@ -13,7 +13,7 @@ const Signup = (props) => {
 
   const Signup = () => {
     if (password1 === password2) {
-      props.signupUser(email, password1);
+      ctx.signupUser(email, password1);
     } else {
       setError("nuuts ug taaraxq bn");
     }
@@ -22,7 +22,7 @@ const Signup = (props) => {
   return (
     <div className={css.signUp}>
       {password2}
-      {props.userId && <Redirect to="/orders" />}
+      {ctx.state.userId && <Redirect to="/orders" />}
       <h1>Бүртгэлийн форм</h1>
       <input
         onChange={(e) => setEmail(e.target.value)}
@@ -40,27 +40,13 @@ const Signup = (props) => {
         placeholder="password давтан оруул"
       />
       {error && <div style={{ color: "red" }}>{error}</div>}
-      {props.firebaseError && (
-        <div style={{ color: "red" }}>{props.firebaseError}</div>
+      {ctx.state.errorCode && (
+        <div style={{ color: "red" }}>{ctx.state.errorCode}</div>
       )}
-      {props.saving && <Spinner />}
+      {ctx.state.saving && <Spinner />}
       <Button text="Sign Up" buttonType="Success" clicked={Signup} />
     </div>
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    saving: state.signupReducer.saving,
-    firebaseError: state.signupReducer.firebaseError,
-    userId: state.signupReducer.userId,
-  };
-};
-const mapDispatchToProps = (dispatch) => {
-  return {
-    signupUser: (email, password) =>
-      dispatch(actions.signupUser(email, password)),
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Signup);
+export default Signup;

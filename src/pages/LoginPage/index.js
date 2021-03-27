@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import css from "./style.module.css";
 import Spinner from "../../General/spinner";
 import Button from "../../General/Button";
-import { connect } from "react-redux";
-import * as actions from "../../redux/action/loginActions";
 import { Redirect } from "react-router-dom";
+import UserContext from "../../context/UserContext";
 const Login = (props) => {
+  const ctx = useContext(UserContext);
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -25,18 +25,18 @@ const Login = (props) => {
     }));
   };
   const login = () => {
-    props.login(form.email, form.password);
+    ctx.loginUser(form.email, form.password);
   };
 
   return (
     <div className={css.Login}>
-      {props.userId && <Redirect to="orders" />}
+      {ctx.state.userId && <Redirect to="orders" />}
       <input onChange={changeEmail} type="text" placeholder="e-mail хаяг" />
       <input onChange={passwordlogin} type="password" placeholder="password" />
-      {props.logginIn && <Spinner />}
-      {props.firebaseError && (
+      {ctx.state.logginIn && <Spinner />}
+      {ctx.state.firebaseError && (
         <div style={{ color: "red" }}>
-          {props.firebaseError} kod: {props.firebaseErrorCode}
+          {ctx.state.firebaseError} kod: {ctx.state.firebaseErrorCode}
         </div>
       )}
       <Button text="Login" buttonType="Success" clicked={login} />
@@ -44,18 +44,4 @@ const Login = (props) => {
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    logginIn: state.signupReducer.logginIn,
-    firebaseError: state.signupReducer.firebaseError,
-    firebaseErrorCode: state.signupReducer.firebaseErrorCode,
-    userId: state.signupReducer.userId,
-  };
-};
-const mapDispatchToProps = (dispatch) => {
-  return {
-    login: (email, password) => dispatch(actions.loginUser(email, password)),
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default Login;

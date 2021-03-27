@@ -9,14 +9,12 @@ const initialState = {
 
 export const OrderStore = (props) => {
   const [state, setState] = useState(initialState);
-  const loadOrders = () => {
+  const loadOrders = (userId, token) => {
     //zahialgiig tataj ehellee gedgiig medegdene
     //eniig huleej awaad spinner ajilaj ehelne
     setState({ ...state, loading: true });
-    // const token = getState().signupReducer.token;
-    //.get(`orders.json?&auth=${token}&orderBy="userId"&equalTo="${userId}"`)
     axios
-      .get(`orders.json`)
+      .get(`orders.json?&auth=${token}&orderBy="userId"&equalTo="${userId}"`)
       .then((response) => {
         const loadedOrders = Object.entries(response.data).reverse();
         setState({ ...state, orders: loadedOrders });
